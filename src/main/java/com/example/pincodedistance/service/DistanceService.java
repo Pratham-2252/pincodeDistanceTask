@@ -21,7 +21,7 @@ public class DistanceService implements IDistance {
 	@Cacheable(value = "distanceCache", key = "#fromPincode + '-' + #toPincode")
 	public DistanceResponse getDistance(String fromPincode, String toPincode) {
 
-		routeRepository.findByFromPincodeAndToPincode(fromPincode, toPincode).map(route -> {
+		return routeRepository.findByFromPincodeAndToPincode(fromPincode, toPincode).map(route -> {
 
 			DistanceResponse distanceResponse = new DistanceResponse();
 
@@ -38,13 +38,15 @@ public class DistanceService implements IDistance {
 			return distanceResponse;
 		});
 
-		return null;
 	}
 
 	private void saveRoute(String fromPincode, String toPincode, DistanceResponse distanceResponse) {
 		Route route = new Route();
 
-		route.setDistance(Double.valueOf(distanceResponse.getDistance()));
+		String distanceStr = distanceResponse.getDistance();
+		String numericDistance = distanceStr.replaceAll("[^0-9.]", "");
+
+		route.setDistance(Double.valueOf(numericDistance));
 		route.setDuration(distanceResponse.getDuration());
 		route.setFromPincode(fromPincode);
 		route.setToPincode(toPincode);
